@@ -1,5 +1,8 @@
 package model;
 
+
+import utils.StringCommon;
+
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
@@ -52,13 +55,10 @@ public class Shoe implements Serializable {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("#,###");
-        String priceVND = df.format(price) + " ₫";
-
         return id + " | " + name + " | " + brand +
-                " | " + priceVND +
-                " | Stock: " + stock +
                 " | Size: " + size +
-                " | Origin: " + origin;
+                " | Origin: " + origin +
+                " | " + StringCommon.formatCurrency(price) +
+                " | Stock: " + StringCommon.formatNumber(stock);
     }
 }
