@@ -128,6 +128,11 @@ public class Main {
         String name = InputUtils.readName("Tên giày: ");
 
         String brandInput = InputUtils.readName("Hãng (NIKE / ADIDAS / PUMA): ");
+        if (!brandInput.equals("NIKE") && !brandInput.equals("ADIDAS") &&
+                !brandInput.equals("PUMA")) {
+            System.out.println("❌ Hãng không hợp lệ! Vui lòng nhập lại.");
+            return;
+        }
         Brand brand = Brand.valueOf(brandInput.trim().toUpperCase());
 
         double price = InputUtils.readDouble("Giá: ");

@@ -17,7 +17,7 @@ public class ShoeService {
 
     // Constructor
     public ShoeService() {
-        shoes = FileUtils.read(FILE);
+        shoes = FileUtils.read(CSV_FILE);
 
         if (shoes == null) {
             shoes = new ArrayList<>();
