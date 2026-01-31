@@ -25,7 +25,7 @@ public class Main {
                     return;
 
                 case 1:
-                    shoeService.showAllById(); // hiển thị theo ID
+                    shoeService.showAllById();
                     break;
 
                 case 2:
@@ -33,9 +33,7 @@ public class Main {
                     break;
 
                 case 3:
-                    System.out.println("\n🔽 SẮP XẾP GIÀY THEO GIÁ");
-                    shoeService.sortByPrice();     // sắp xếp theo giá
-                    shoeService.showAllByPrice();  // hiển thị theo giá
+                    shoeService.showAllByPrice();
                     break;
 
                 case 4:
@@ -66,12 +64,11 @@ public class Main {
                     break;
 
                 default:
-                    System.out.println("❌ Lựa chọn không hợp lệ! Vui lòng chọn lại.");
+                    System.out.println("❌ Lựa chọn không hợp lệ!");
             }
 
             System.out.println("\n⏎ Nhấn Enter để tiếp tục...");
             new java.util.Scanner(System.in).nextLine();
-
         }
     }
 
@@ -97,9 +94,10 @@ public class Main {
     //BÁN GIÀY
     private static void sellShoe(ShoeService shoeService,
                                  InvoiceService invoiceService) {
+
         shoeService.showAllById();
 
-        String id = InputUtils.readShoeId("\n🔎 Nhập mã giày (Ví dụ: S01): ");
+        String id = InputUtils.readShoeId("\n🔎 Nhập mã giày (S01): ");
         int qty = InputUtils.readInt("📦 Số lượng: ");
 
         try {
@@ -132,9 +130,18 @@ public class Main {
 
         double price = InputUtils.readDouble("Giá: ");
         int stock = InputUtils.readInt("Tồn kho: ");
+        int size = InputUtils.readInt("Size giày: ");
+        String origin = InputUtils.readName("Xuất xứ: ");
 
-        shoeService.add(new Shoe(id, name, brand, price, stock));
-        System.out.println("✅ Thêm giày thành công!");
+        boolean result = shoeService.add(
+                new Shoe(id, name, brand, price, stock, size, origin)
+        );
+
+        if (result) {
+            System.out.println("✅ Thêm giày thành công!");
+        } else {
+            System.out.println("❌ Trùng mã giày!");
+        }
     }
 
     //SỬA GIÀY
@@ -144,14 +151,21 @@ public class Main {
         shoeService.showAllById();
 
         String id = InputUtils.readShoeId("Nhập mã giày cần sửa: ");
-
         String name = InputUtils.readName("Tên mới: ");
-        String brandInput = InputUtils.readName("Hãng mới (NIKE / ADIDAS / PUMA / CONVERSE / VANS / NEW_BALANCE): ");
+
+        String brandInput = InputUtils.readName(
+                "Hãng mới (NIKE / ADIDAS / PUMA / CONVERSE / VANS / NEW_BALANCE): "
+        );
         Brand brand = Brand.valueOf(brandInput.trim().toUpperCase());
+
         double price = InputUtils.readDouble("Giá mới: ");
         int stock = InputUtils.readInt("Tồn kho mới: ");
+        int size = InputUtils.readInt("Size mới: ");
+        String origin = InputUtils.readName("Xuất xứ mới: ");
 
-        boolean result = shoeService.updateShoe(id, name, brand, price, stock);
+        boolean result = shoeService.updateShoe(
+                id, name, brand, price, stock, size, origin
+        );
 
         if (result) {
             System.out.println("✅ Sửa giày thành công!");

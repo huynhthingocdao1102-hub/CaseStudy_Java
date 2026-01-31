@@ -10,18 +10,22 @@ public class Shoe implements Serializable {
     private Brand brand;
     private double price;
     private int stock;
+    private int size;        // size giày
+    private String origin;   // xuất xứ
 
     // Constructor không tham số
     public Shoe() {
     }
 
-    // Constructor
-    public Shoe(String id, String name, Brand brand, double price, int stock) {
+    // Constructor đầy đủ
+    public Shoe(String id, String name, Brand brand, double price, int stock, int size, String origin) {
         this.id = id;
         this.name = name;
         this.brand = brand;
         this.price = price;
         this.stock = stock;
+        this.size = size;
+        this.origin = origin;
     }
 
     // GETTER
@@ -30,12 +34,16 @@ public class Shoe implements Serializable {
     public Brand getBrand() { return brand; }
     public double getPrice() { return price; }
     public int getStock() { return stock; }
+    public int getSize() { return size; }
+    public String getOrigin() { return origin; }
 
     // SETTER
     public void setName(String name) { this.name = name; }
     public void setBrand(Brand brand) { this.brand = brand; }
     public void setPrice(double price) { this.price = price; }
     public void setStock(int stock) { this.stock = stock; }
+    public void setSize(int size) { this.size = size; }
+    public void setOrigin(String origin) { this.origin = origin; }
 
     // BUSINESS
     public void decreaseStock(int qty) {
@@ -48,6 +56,9 @@ public class Shoe implements Serializable {
         String priceVND = df.format(price) + " ₫";
 
         return id + " | " + name + " | " + brand +
-                " | " + priceVND + " | Stock: " + stock;
+                " | " + priceVND +
+                " | Stock: " + stock +
+                " | Size: " + size +
+                " | Origin: " + origin;
     }
 }

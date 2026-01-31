@@ -7,7 +7,10 @@ import utils.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ShoeService {
 
@@ -15,59 +18,68 @@ public class ShoeService {
     private final String FILE = "shoes.dat";
     private final String CSV_FILE = "shoes.csv";
 
-    // Constructor
+    // ================= CONSTRUCTOR =================
     public ShoeService() {
         shoes = FileUtils.read(FILE);
 
         if (shoes == null) {
             shoes = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
-                String line;
-                br.readLine(); // bỏ header
-                while ((line = br.readLine()) != null) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 5) {
-                        String id = parts[0].trim();
-                        String name = parts[1].trim();
-                        Brand brand = Brand.valueOf(parts[2].trim().toUpperCase());
-                        double price = Double.parseDouble(parts[3].trim());
-                        int stock = Integer.parseInt(parts[4].trim());
-
-                        shoes.add(new Shoe(id, name, brand, price, stock));
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("❌ Lỗi đọc CSV, dùng dữ liệu mặc định!");
-
-                shoes.add(new Shoe("S01", "Air Force 1", Brand.NIKE, 2500000, 15));
-                shoes.add(new Shoe("S02", "Air Jordan 1", Brand.NIKE, 4200000, 8));
-                shoes.add(new Shoe("S03", "Ultraboost", Brand.ADIDAS, 3200000, 10));
-                shoes.add(new Shoe("S04", "Stan Smith", Brand.ADIDAS, 2100000, 20));
-                shoes.add(new Shoe("S05", "RS-X", Brand.PUMA, 2300000, 14));
-                shoes.add(new Shoe("S06", "Chuck 70", Brand.CONVERSE, 1800000, 30));
-                shoes.add(new Shoe("S07", "Old Skool", Brand.VANS, 1700000, 22));
-                shoes.add(new Shoe("S08", "NB 574", Brand.NEW_BALANCE, 2400000, 13));
-            }
+            loadFromCSV();
         }
 
         sortById();
     }
 
-    //HIỂN THỊ
+    // ================= LOAD CSV =================
+    private void loadFromCSV() {
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
+            String line;
+            br.readLine(); // bỏ header
 
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                String id = parts[0].trim();
+                String name = parts[1].trim();
+                Brand brand = Brand.valueOf(parts[2].trim().toUpperCase());
+                double price = Double.parseDouble(parts[3].trim());
+                int stock = Integer.parseInt(parts[4].trim());
+                int size = Integer.parseInt(parts[5].trim());
+                String origin = parts[6].trim();
+
+                shoes.add(new Shoe(id, name, brand, price, stock, size, origin));
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Lỗi đọc CSV, dùng dữ liệu mặc định!");
+
+            shoes.add(new Shoe("S01", "Air Force 1", Brand.NIKE, 2500000, 15, 42, "Vietnam"));
+            shoes.add(new Shoe("S02", "Air Jordan 1", Brand.NIKE, 4200000, 8, 43, "China"));
+            shoes.add(new Shoe("S03", "Ultraboost", Brand.ADIDAS, 3200000, 10, 41, "Vietnam"));
+            shoes.add(new Shoe("S04", "Stan Smith", Brand.ADIDAS, 2100000, 20, 40, "Indonesia"));
+        }
+    }
+
+    // ================= HIỂN THỊ =================
     public void showAllById() {
         sortById();
         System.out.println("📋 DANH SÁCH GIÀY THEO ID");
-        shoes.forEach(System.out::println);
+
+        for (Shoe s : shoes) {
+            System.out.println(s);
+        }
     }
 
     public void showAllByPrice() {
+        sortByPrice();
         System.out.println("📋 DANH SÁCH GIÀY THEO GIÁ");
-        shoes.forEach(System.out::println);
+
+        for (Shoe s : shoes) {
+            System.out.println(s);
+        }
     }
 
-    //TÌM KIẾM
-
+    // ================= TÌM KIẾM =================
     public Shoe findById(String id) {
         for (Shoe s : shoes) {
             if (s.getId().equalsIgnoreCase(id)) {
@@ -77,19 +89,18 @@ public class ShoeService {
         return null;
     }
 
-    public void findByBrand(String input) {
-        input = input.trim().toUpperCase();
+    public void findByBrand(String brandInput) {
         boolean found = false;
 
         for (Shoe s : shoes) {
-            if (s.getBrand().name().equals(input)) {
+            if (s.getBrand().name().equalsIgnoreCase(brandInput)) {
                 System.out.println(s);
                 found = true;
             }
         }
 
         if (!found) {
-            System.out.println("❌ Không tìm thấy giày theo hãng này!");
+            System.out.println("❌ Không tìm thấy giày theo hãng!");
         }
     }
 
@@ -104,27 +115,48 @@ public class ShoeService {
         }
 
         if (!found) {
-            System.out.println("⚠️ Không có giày nào sắp hết hàng!");
+            System.out.println("⚠️ Không có giày sắp hết hàng!");
         }
     }
 
-    //QUẢN LÝ
-
-    // Thêm giày
+    // ================= THÊM - SỬA - XÓA =================
     public boolean add(Shoe shoe) {
         if (findById(shoe.getId()) != null) {
-            return false; // trùng ID
+            return false;
         }
         shoes.add(shoe);
-        sortById();
         return true;
     }
 
+    public boolean updateShoe(String id, String name, Brand brand,
+                              double price, int stock, int size, String origin) {
+        Shoe s = findById(id);
+        if (s == null) return false;
+
+        s.setName(name);
+        s.setBrand(brand);
+        s.setPrice(price);
+        s.setStock(stock);
+        s.setSize(size);
+        s.setOrigin(origin);
+
+        return true;
+    }
+
+    public boolean deleteShoe(String id) {
+        Shoe s = findById(id);
+        if (s == null) return false;
+
+        shoes.remove(s);
+        return true;
+    }
+
+    // ================= BÁN GIÀY =================
     public void sell(String id, int qty) throws OutOfStockException {
         Shoe s = findById(id);
 
         if (s == null)
-            throw new OutOfStockException("❌ Sai mã giày!");
+            throw new OutOfStockException("❌ Không tìm thấy giày!");
 
         if (s.getStock() < qty)
             throw new OutOfStockException("❌ Không đủ hàng!");
@@ -132,47 +164,26 @@ public class ShoeService {
         s.decreaseStock(qty);
     }
 
-    //SẮP XẾP
-
+    // ================= SẮP XẾP (COMPARATOR CƠ BẢN) =================
     public void sortByPrice() {
-        shoes.sort(Comparator.comparingDouble(Shoe::getPrice));
+        Collections.sort(shoes, new Comparator<Shoe>() {
+            @Override
+            public int compare(Shoe s1, Shoe s2) {
+                return Double.compare(s1.getPrice(), s2.getPrice());
+            }
+        });
     }
 
     public void sortById() {
-        shoes.sort(Comparator.comparingInt(s -> {
-            try {
-                return Integer.parseInt(s.getId().substring(1));
-            } catch (Exception e) {
-                return 0;
+        Collections.sort(shoes, new Comparator<Shoe>() {
+            @Override
+            public int compare(Shoe s1, Shoe s2) {
+                return s1.getId().compareTo(s2.getId());
             }
-        }));
+        });
     }
 
-    //SỬA, XÓA
-
-    public boolean updateShoe(String id, String newName, Brand newBrand, double newPrice, int newStock) {
-        Shoe shoe = findById(id);
-        if (shoe == null) return false;
-
-        shoe.setName(newName);
-        shoe.setBrand(newBrand);
-        shoe.setPrice(newPrice);
-        shoe.setStock(newStock);
-
-        sortById();
-        return true;
-    }
-
-    public boolean deleteShoe(String id) {
-        Shoe shoe = findById(id);
-        if (shoe == null) return false;
-
-        shoes.remove(shoe);
-        return true;
-    }
-
-    //LƯU FILE
-
+    // ================= LƯU FILE =================
     public void save() {
         FileUtils.write(FILE, shoes);
     }
